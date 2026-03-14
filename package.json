@@ -1,0 +1,30 @@
+
+{
+  "name": "img2ppt",
+  "version": "0.1.0",
+  "description": "A skill to convert architecture diagrams or flowcharts into editable PowerPoint (.pptx) slides using AI vision analysis.",
+  "keywords": [
+    "ppt",
+    "powerpoint",
+    "diagram",
+    "image-processing",
+    "architecture",
+    "flowchart",
+    "agent-skill"
+  ],
+  "author": "Trae User",
+  "license": "MIT",
+  "main": "SKILL.md",
+  "files": [
+    "SKILL.md",
+    "README.md",
+    "requirements.txt"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/img2ppt.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
