@@ -23,20 +23,27 @@ When the user provides an image and requests a PPT conversion:
     - Use your vision capabilities to analyze the image.
     - Identify all distinct visual elements: rectangles, rounded rectangles, cylinders (databases), arrows/connectors, and text labels.
     - Determine the approximate layout coordinates (relative to a 16:9 slide), sizes, and colors (RGB).
+    - **CRITICAL TEXT ANALYSIS**: Pay extreme attention to text styling. You MUST accurately estimate the relative font size for every piece of text (e.g., larger for titles, smaller for body text). You MUST determine if the text is bold.
+    - **CANVAS BOUNDARY CHECK**: The slide has absolute dimensions (e.g., 13.33 x 7.5 inches). You MUST ensure that for EVERY element, `x + w` is strictly less than `slide.width_inches`, and `y + h` is strictly less than `slide.height_inches`. If your estimated coordinates exceed the boundaries, you must scale down the layout proportionately before generating the JSON. No elements should fall off the slide.
     - **CRITICAL**: Do NOT write Python code directly at this stage. Instead, construct a JSON object following the `DiagramSchema` below.
 
 2.  **JSON Construction**:
     - Create a JSON object that strictly adheres to the schema.
     - Ensure all coordinates are normalized (e.g., assuming a 13.33 x 7.5 inch slide).
     - Map visual shapes to standard PPT shape types (e.g., `MSO_SHAPE.ROUNDED_RECTANGLE`).
+    - **MANDATORY STYLE RULES**:
+      - `font_color` MUST be explicitly defined for EVERY element containing text, regardless of the background color. Never assume a default color.
+      - `font_size` MUST be explicitly defined for EVERY element containing text. Use your best judgment to reflect the visual hierarchy (e.g., titles might be 16-20, normal text 10-12).
+      - `border_color` MUST be explicitly defined for ANY shape that visually has a border in the image (e.g., white boxes with gray outlines). Use `border_width` to control thickness.
+      - `word_wrap`: Add `"word_wrap": false` in the `style` object for text that MUST remain on a single line (like short titles or labels). For paragraphs, use `"word_wrap": true`.
+      - **CRITICAL WIDTH ESTIMATION**: For shapes containing text, ensure the width (`w`) is large enough to accommodate the text on a single line if `word_wrap` is false. Overestimating width slightly is better than unexpected line breaks.
+      - **GLOBAL LAYOUT SCALING**: When analyzing a wide or complex diagram, calculate the total required width before assigning absolute X coordinates. If the diagram has many columns, allocate `w` values and `x` spacing such that the sum of the widest row fits within `slide.width_inches` (e.g., 13.33).
 
 3.  **Code Generation & Execution**:
-    - Write a Python script that:
-        - Imports `python-pptx`.
-        - Defines the JSON data (paste the JSON you constructed).
-        - Iterates through the JSON data to create slides and shapes.
-        - Uses `python-pptx` to render each element with correct position, size, color, and text.
-    - Execute the script to generate the `.pptx` file.
+    - Do NOT write custom code. Use the existing skill workflow.
+    - Save the JSON to a temporary file (e.g., `temp.json`).
+    - Execute the provided renderer script: `python scripts/ppt_renderer.py temp.json output.pptx`.
+    - Clean up the temporary JSON file after execution.
 
 4.  **Delivery**:
     - Verify the file was created.
@@ -71,6 +78,8 @@ Use this structure to represent the diagram:
         "is_dashed": false,
         "font_size": 12,
         "font_color": "000000",
+        "bold": false,
+        "word_wrap": false,
         "alignment": "CENTER" 
       }
     },
