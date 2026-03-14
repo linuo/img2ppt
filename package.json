@@ -18,7 +18,8 @@
   "files": [
     "SKILL.md",
     "README.md",
-    "requirements.txt"
+    "requirements.txt",
+    "scripts/ppt_renderer.py"
   ],
   "repository": {
     "type": "git",
